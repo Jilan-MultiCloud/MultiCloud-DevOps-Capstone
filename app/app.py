@@ -39,7 +39,7 @@ class AppHandler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server = HTTPServer(("127.0.0.1", PORT), AppHandler)
+    server = HTTPServer(("0.0.0.0", PORT), AppHandler)
     print(f"Starting app for {CLOUD_NAME} on port {PORT}")
     try:
         server.serve_forever()
