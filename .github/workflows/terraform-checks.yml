@@ -1,0 +1,39 @@
+name: Terraform checks
+
+on:
+  push:
+    paths:
+      - "terraform/**"
+      - ".github/workflows/terraform-checks.yml"
+  pull_request:
+    paths:
+      - "terraform/**"
+      - ".github/workflows/terraform-checks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform/environments/dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Check formatting
+        run: terraform fmt -check -recursive ../..
+
+      - name: Initialize providers without backend
+        run: terraform init -backend=false
+
+      - name: Validate configuration
+        run: terraform validate
