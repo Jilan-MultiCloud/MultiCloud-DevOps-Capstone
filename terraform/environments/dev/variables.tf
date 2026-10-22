@@ -21,3 +21,10 @@ variable "gcp_region" {
   type        = string
   default     = "us-central1"
 }
+
+
+variable "bucket_name" {
+  description = "Globally unique S3 bucket name for development"
+  type        = string
+  default     = "jilan-multicloud-capstone-dev-2026-319918321628"
+}
