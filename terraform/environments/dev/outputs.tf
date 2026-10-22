@@ -1,5 +1,6 @@
+
 output "configured_clouds" {
-  description = "Cloud providers declared in this Terraform environment. This does not confirm authentication or deploy resources."
+  description = "Cloud providers declared in this Terraform environment."
   value       = ["aws", "azure", "gcp"]
 }
 
@@ -29,6 +30,16 @@ output "gcp_bucket_name" {
 }
 
 output "gcp_bucket_url" {
-  description = "URL of the Google Cloud Storage bucket"
+  description = "Google Cloud Storage bucket URL"
   value       = module.gcp.bucket_url
+}
+
+output "gcp_cloud_run_service_name" {
+  description = "Google Cloud Run service name"
+  value       = module.gcp.cloud_run_service_name
+}
+
+output "gcp_cloud_run_service_url" {
+  description = "Google Cloud Run service URL"
+  value       = module.gcp.cloud_run_service_url
 }

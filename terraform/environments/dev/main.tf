@@ -15,6 +15,8 @@ module "azure" {
 module "gcp" {
   source = "../../modules/gcp"
 
-  bucket_name = var.gcp_bucket_name
-  gcp_region  = var.gcp_region
+  bucket_name      = var.gcp_bucket_name
+  gcp_region       = var.gcp_region
+  gcp_project_id   = var.gcp_project_id
+  cloud_run_region = var.gcp_cloud_run_region
 }

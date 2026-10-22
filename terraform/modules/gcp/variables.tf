@@ -8,3 +8,14 @@ variable "gcp_region" {
   type        = string
   default     = "us-central1"
 }
+
+variable "gcp_project_id" {
+  description = "Google Cloud project ID"
+  type        = string
+}
+
+variable "cloud_run_region" {
+  description = "Region of the Cloud Run service"
+  type        = string
+  default     = "asia-south1"
+}
