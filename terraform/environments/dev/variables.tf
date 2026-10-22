@@ -28,3 +28,8 @@ variable "bucket_name" {
   type        = string
   default     = "jilan-multicloud-capstone-dev-2026-319918321628"
 }
+
+variable "gcp_bucket_name" {
+  description = "Globally unique Google Cloud Storage bucket name"
+  type        = string
+}
