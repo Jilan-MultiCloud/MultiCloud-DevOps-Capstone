@@ -1,3 +1,4 @@
+
 data "archive_file" "aws_lambda_package" {
   type        = "zip"
   source_file = "${path.root}/../../../app/lambda_function.py"
@@ -27,6 +28,7 @@ module "azure" {
   source = "../../modules/azure"
 
   azure_location = var.azure_location
+  azure_acr_name = var.azure_acr_name
 }
 
 module "gcp" {

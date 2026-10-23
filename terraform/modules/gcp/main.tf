@@ -22,13 +22,16 @@ resource "google_cloud_run_v2_service" "capstone" {
   project             = var.gcp_project_id
   deletion_protection = true
 
+  # Allow unauthenticated requests to the service.
+  invoker_iam_disabled = true
+
   scaling {
     manual_instance_count = 0
     min_instance_count    = 0
   }
 
   template {
-    timeout                           = "30s"
+    timeout                          = "30s"
     max_instance_request_concurrency = 80
 
     scaling {

@@ -39,3 +39,9 @@ variable "gcp_bucket_name" {
   description = "Globally unique Google Cloud Storage bucket name."
   type        = string
 }
+
+variable "azure_acr_name" {
+  description = "Globally unique Azure Container Registry name."
+  type        = string
+  default     = "jilanmccapstone2026"
+}

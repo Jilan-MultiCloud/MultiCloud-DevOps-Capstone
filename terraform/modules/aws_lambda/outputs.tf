@@ -1,4 +1,4 @@
-﻿output "function_name" {
+output "function_name" {
   description = "Name of the deployed Lambda function."
   value       = aws_lambda_function.capstone_api.function_name
 }
