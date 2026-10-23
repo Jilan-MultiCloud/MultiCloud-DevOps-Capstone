@@ -1,4 +1,4 @@
-# Multi-Cloud Deployment and Management with Terraform
+﻿# Multi-Cloud Deployment and Management with Terraform
 
 An individual DevOps capstone project demonstrating Infrastructure as Code (IaC) across Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP). The project uses Terraform to manage cloud resources and demonstrates application health checks, container deployment, and simulated cross-cloud routing, failover, and recovery.
 
@@ -70,32 +70,32 @@ The local router is a demonstration component. Its simulated failover is not the
 
 ```text
 .
-├── .github/
-│   └── workflows/
-├── app/
-│   ├── app.py
-│   ├── Dockerfile
-│   ├── lambda_function.py
-│   └── router.py
-├── docs/
-│   └── screenshots/
-├── terraform/
-│   ├── environments/
-│   │   └── dev/
-│   │       ├── main.tf
-│   │       ├── outputs.tf
-│   │       ├── providers.tf
-│   │       ├── variables.tf
-│   │       └── versions.tf
-│   └── modules/
-│       ├── aws/
-│       ├── aws_lambda/
-│       ├── azure/
-│       └── gcp/
-├── monitoring/
-├── scripts/
-├── .gitignore
-└── README.md
+â”œâ”€â”€ .github/
+â”‚   â””â”€â”€ workflows/
+â”œâ”€â”€ app/
+â”‚   â”œâ”€â”€ app.py
+â”‚   â”œâ”€â”€ Dockerfile
+â”‚   â”œâ”€â”€ lambda_function.py
+â”‚   â””â”€â”€ router.py
+â”œâ”€â”€ docs/
+â”‚   â””â”€â”€ screenshots/
+â”œâ”€â”€ terraform/
+â”‚   â”œâ”€â”€ environments/
+â”‚   â”‚   â””â”€â”€ dev/
+â”‚   â”‚       â”œâ”€â”€ main.tf
+â”‚   â”‚       â”œâ”€â”€ outputs.tf
+â”‚   â”‚       â”œâ”€â”€ providers.tf
+â”‚   â”‚       â”œâ”€â”€ variables.tf
+â”‚   â”‚       â””â”€â”€ versions.tf
+â”‚   â””â”€â”€ modules/
+â”‚       â”œâ”€â”€ aws/
+â”‚       â”œâ”€â”€ aws_lambda/
+â”‚       â”œâ”€â”€ azure/
+â”‚       â””â”€â”€ gcp/
+â”œâ”€â”€ monitoring/
+â”œâ”€â”€ scripts/
+â”œâ”€â”€ .gitignore
+â””â”€â”€ README.md
 ```
 
 The layout above summarizes the main project components. Refer to the repository for the exact files currently present in each directory.
@@ -244,10 +244,10 @@ http://127.0.0.1:8090
 
 The simulation provides endpoints for:
 
-- `/` — route a request to the selected healthy cloud.
-- `/status` — inspect the router's current status.
-- `/simulate/aws/down` — simulate AWS being unavailable.
-- `/simulate/aws/up` — restore AWS in the simulation.
+- `/` â€” route a request to the selected healthy cloud.
+- `/status` â€” inspect the router's current status.
+- `/simulate/aws/down` â€” simulate AWS being unavailable.
+- `/simulate/aws/up` â€” restore AWS in the simulation.
 
 Example demonstration sequence:
 
@@ -403,7 +403,7 @@ The following screenshots document the deployed resources and application behavi
 
 **Healthy GCP routing**
 
-![Router GCP healthy](docs/screenshots/router-gcp-healthy.png)
+![GCP Cloud Run browser health](docs/screenshots/gcp-cloud-run-browser-health.png)
 
 **Simulated failover**
 
@@ -472,3 +472,4 @@ Update this checklist only after the corresponding workflow or test has been com
 ## Conclusion
 
 This capstone demonstrates how Terraform can organize infrastructure across AWS, Azure, and GCP while keeping deployment configuration, security considerations, and test evidence in one repository. The application endpoints and local router simulation provide a foundation for further work on automated delivery, monitoring, and disaster-recovery testing.
+
