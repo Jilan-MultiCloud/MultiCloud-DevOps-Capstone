@@ -70,33 +70,36 @@ The local router is a demonstration component. Its simulated failover is not the
 
 ```text
 .
-â”œâ”€â”€ .github/
-â”‚   â””â”€â”€ workflows/
-â”œâ”€â”€ app/
-â”‚   â”œâ”€â”€ app.py
-â”‚   â”œâ”€â”€ Dockerfile
-â”‚   â”œâ”€â”€ lambda_function.py
-â”‚   â””â”€â”€ router.py
-â”œâ”€â”€ docs/
-â”‚   â””â”€â”€ screenshots/
-â”œâ”€â”€ terraform/
-â”‚   â”œâ”€â”€ environments/
-â”‚   â”‚   â””â”€â”€ dev/
-â”‚   â”‚       â”œâ”€â”€ main.tf
-â”‚   â”‚       â”œâ”€â”€ outputs.tf
-â”‚   â”‚       â”œâ”€â”€ providers.tf
-â”‚   â”‚       â”œâ”€â”€ variables.tf
-â”‚   â”‚       â””â”€â”€ versions.tf
-â”‚   â””â”€â”€ modules/
-â”‚       â”œâ”€â”€ aws/
-â”‚       â”œâ”€â”€ aws_lambda/
-â”‚       â”œâ”€â”€ azure/
-â”‚       â””â”€â”€ gcp/
-â”œâ”€â”€ monitoring/
-â”œâ”€â”€ scripts/
-â”œâ”€â”€ .gitignore
-â””â”€â”€ README.md
+├── .github/
+│   └── workflows/
+│       └── terraform-checks.yml
+├── app/
+│   ├── app.py
+│   ├── Dockerfile
+│   ├── lambda_function.py
+│   └── router.py
+├── docs/
+│   └── screenshots/
+├── terraform/
+│   ├── environments/
+│   │   └── dev/
+│   │       ├── main.tf
+│   │       ├── outputs.tf
+│   │       ├── providers.tf
+│   │       ├── variables.tf
+│   │       └── versions.tf
+│   └── modules/
+│       ├── aws/
+│       ├── aws_lambda/
+│       ├── azure/
+│       └── gcp/
+├── monitoring/
+├── scripts/
+├── .gitignore
+└── README.md
 ```
+
+
 
 The layout above summarizes the main project components. Refer to the repository for the exact files currently present in each directory.
 
