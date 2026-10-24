@@ -1,0 +1,27 @@
+# ==============================================================================
+# INCIDENT TRIGGER RULES - SAVED DIRECTLY UNDER MONITORING/
+# ==============================================================================
+groups:
+  - name: MultiCloudAppAlerts
+    rules:
+      # Trigger 1: Endpoint Blackout Detection
+      - alert: MultiCloudEndpointDown
+        expr: up{job=~".*-microservice-endpoint"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          tier: infrastructure
+        annotations:
+          summary: "Multi-Cloud Endpoint Instance Down"
+          description: "Microservice node instance under job reference '{{ $labels.job }}' is unreachable for over 60 seconds."
+
+      # Trigger 2: Python Client Request Router Errors
+      - alert: RouterSimulationErrorSpike
+        expr: rate(http_requests_total{status=~"5.*"}[5m]) / rate(http_requests_total[5m]) * 100 > 5
+        for: 2m
+        labels:
+          severity: warning
+          tier: application
+        annotations:
+          summary: "High Failure Rate in Python Request Router"
+          description: "The python client routing cluster is reporting a simulated backend drop rate of {{ $value }}% over a running 5-minute interval window."

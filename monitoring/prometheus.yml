@@ -1,0 +1,60 @@
+# ==============================================================================
+# PROMETHEUS CONFIGURATION ENGINE - MAPS DIRECTLY TO YOUR ROOT MONITORING FOLDER
+# ==============================================================================
+global:
+  scrape_interval:     15s 
+  evaluation_interval: 15s 
+  scrape_timeout:      10s 
+
+  external_labels:
+    environment: 'dev'
+    project:     'MultiCloud-DevOps-Capstone'
+
+# ==============================================================================
+# ALERTMANAGER SETUP (FOR SLACK / PAGERDUTY WORKFLOWS)
+# ==============================================================================
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - 'localhost:9093'
+
+# ==============================================================================
+# AUTOMATED INCIDENT ALERTS - EXPECTED IN THE SAME MONITORING FOLDER
+# ==============================================================================
+rule_files:
+  - "alert.rules.yml"
+
+# ==============================================================================
+# MULTI-CLOUD ENDPOINT TARGET SCRAPING CONFIGURATIONS
+# ==============================================================================
+scrape_configs:
+  # Target 1: Self Loopback
+  - job_name: 'prometheus-engine'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Target 2: Local Python Client Router (app/router.py)
+  - job_name: 'local-router-simulation'
+    static_configs:
+      - targets: ['127.0.0.1:8090']
+
+  # Target 3: Azure Container Apps Endpoint (From your app.py deployment)
+  - job_name: 'azure-microservice-endpoint'
+    metrics_path: '/metrics'
+    scheme: 'https'
+    tls_config:
+      insecure_skip_verify: false
+    static_configs:
+      - targets:
+        - 'ca-multicloud-capstone-dev.orangemeadow-4f21758c.eastus.azurecontainerapps.io'
+
+  # Target 4: GCP Cloud Run Service Endpoint
+  - job_name: 'gcp-microservice-endpoint'
+    metrics_path: '/metrics'
+    scheme: 'https'
+    tls_config:
+      insecure_skip_verify: false
+    static_configs:
+      - targets:
+        - 'multicloud-capstone-kmacr5flaa-el.a.run.app'
