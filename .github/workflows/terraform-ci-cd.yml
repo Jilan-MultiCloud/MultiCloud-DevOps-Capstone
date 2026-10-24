@@ -31,7 +31,7 @@ jobs:
       - name: Setup Terraform Engine
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.5.7"
+          terraform_version: "1.6.0"
 
       - name: Check HCL Code Formatting
         run: terraform fmt -check -recursive ../../modules/
