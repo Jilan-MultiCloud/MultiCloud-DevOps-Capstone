@@ -11,7 +11,7 @@ resource "aws_s3_bucket" "capstone" {
 }
 
 resource "aws_s3_bucket_public_access_block" "capstone" {
-  bucket = aws_s3_bucket.capstone.id
+  bucket                  = aws_s3_bucket.capstone.id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true

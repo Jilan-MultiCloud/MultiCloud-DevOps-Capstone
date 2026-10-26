@@ -51,7 +51,7 @@ provider "aws" {
   region     = var.aws_region
   access_key = data.vault_generic_secret.aws_secrets.data["access_key"]
   secret_key = data.vault_generic_secret.aws_secrets.data["secret_key"]
-  
+
   default_tags {
     tags = {
       Environment = "Development"
@@ -71,8 +71,8 @@ provider "azurerm" {
       prevent_deletion_if_contains_resources = false
     }
     virtual_machine {
-      delete_os_disk_on_deletion     = true
-      graceful_shutdown              = false
+      delete_os_disk_on_deletion = true
+      graceful_shutdown          = false
     }
   }
 
