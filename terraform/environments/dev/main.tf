@@ -14,8 +14,9 @@ module "aws" {
 module "aws_lambda" {
   source = "../../modules/aws_lambda"
 
-  providers = {
-    aws = aws.mumbai
+  provider "aws" {
+    alias  = "mumbai"
+    region = "ap-south-1"
   }
 
   function_name    = "multicloud-capstone-api"
