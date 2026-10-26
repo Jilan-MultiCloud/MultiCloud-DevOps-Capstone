@@ -1,46 +1,26 @@
-variable "aws_region" {
-  description = "AWS region for capstone resources."
-  type        = string
-  default     = "us-east-1"
-}
+terraform {
+  required_version = ">= 1.6.0"
 
-variable "azure_location" {
-  description = "Azure region for capstone resources."
-  type        = string
-  default     = "East US"
-}
-
-variable "gcp_project_id" {
-  description = "Existing Google Cloud project ID. Set TF_VAR_gcp_project_id locally."
-  type        = string
-  default     = ""
-}
-
-variable "gcp_region" {
-  description = "Google Cloud Storage bucket location."
-  type        = string
-  default     = "us-central1"
-}
-
-variable "gcp_cloud_run_region" {
-  description = "Region of the existing Google Cloud Run service."
-  type        = string
-  default     = "asia-south1"
-}
-
-variable "bucket_name" {
-  description = "Globally unique S3 bucket name for development."
-  type        = string
-  default     = "jilan-multicloud-capstone-dev-2026-319918321628"
-}
-
-variable "gcp_bucket_name" {
-  description = "Globally unique Google Cloud Storage bucket name."
-  type        = string
-}
-
-variable "azure_acr_name" {
-  description = "Globally unique Azure Container Registry name."
-  type        = string
-  default     = "jilanmccapstone2026"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.0"
+    }
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 5.0"
+    }
+    vault = {
+      source  = "hashicorp/vault"
+      version = "~> 3.0"
+    }
+    archive = {
+      source  = "hashicorp/archive"
+      version = "~> 2.0"
+    }
+  }
 }
