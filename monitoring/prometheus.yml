@@ -17,7 +17,7 @@ alerting:
   alertmanagers:
     - static_configs:
         - targets:
-          - 'localhost:9093'
+          - 'localhost:9093' # Change to 'alertmanager:9093' if containerized
 
 # ==============================================================================
 # AUTOMATED INCIDENT ALERTS - EXPECTED IN THE SAME MONITORING FOLDER
@@ -36,12 +36,22 @@ scrape_configs:
 
   # Target 2: Local Python Client Router (app/router.py)
   - job_name: 'local-router-simulation'
+    metrics_path: '/health'
     static_configs:
-      - targets: ['127.0.0.1:8090']
+      # host.docker.internal allows Prometheus in a Docker container to reach localhost:8090 on your host machine
+      - targets: ['host.docker.internal:8090']
 
-  # Target 3: Azure Container Apps Endpoint (From your app.py deployment)
+  # Target 3: AWS Lambda Endpoint
+  - job_name: 'aws-microservice-endpoint'
+    metrics_path: '/health'
+    scheme: 'https'
+    static_configs:
+      - targets:
+        - 'hr5wkrgtaoxun4fbodccb6a7zu0bqjya.lambda-url.ap-south-1.on.aws'
+
+  # Target 4: Azure Container Apps Endpoint (From your app.py deployment)
   - job_name: 'azure-microservice-endpoint'
-    metrics_path: '/metrics'
+    metrics_path: '/health'
     scheme: 'https'
     tls_config:
       insecure_skip_verify: false
@@ -49,9 +59,9 @@ scrape_configs:
       - targets:
         - 'ca-multicloud-capstone-dev.orangemeadow-4f21758c.eastus.azurecontainerapps.io'
 
-  # Target 4: GCP Cloud Run Service Endpoint
+  # Target 5: GCP Cloud Run Service Endpoint
   - job_name: 'gcp-microservice-endpoint'
-    metrics_path: '/metrics'
+    metrics_path: '/health'
     scheme: 'https'
     tls_config:
       insecure_skip_verify: false

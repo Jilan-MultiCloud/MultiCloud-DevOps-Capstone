@@ -1,4 +1,3 @@
-
 resource "azurerm_resource_group" "capstone" {
   name     = "rg-multicloud-capstone-dev"
   location = var.azure_location
@@ -125,4 +124,27 @@ resource "azurerm_container_app" "capstone" {
     Environment = "dev"
     ManagedBy   = "Terraform"
   }
+}
+
+# ------------------------------------------------------------------------------
+# DISASTER RECOVERY STORAGE
+# ------------------------------------------------------------------------------
+resource "azurerm_storage_account" "dr_storage" {
+  name                     = var.azure_storage_account_name
+  resource_group_name      = azurerm_resource_group.capstone.name
+  location                 = azurerm_resource_group.capstone.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  tags = {
+    Project     = "MultiCloud-DevOps-Capstone"
+    Environment = "dev"
+    ManagedBy   = "Terraform"
+  }
+}
+
+resource "azurerm_storage_container" "dr_container" {
+  name                  = "dr-backups"
+  storage_account_name  = azurerm_storage_account.dr_storage.name
+  container_access_type = "private"
 }

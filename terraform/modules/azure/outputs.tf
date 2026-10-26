@@ -1,4 +1,3 @@
-
 output "resource_group_name" {
   description = "Name of the Azure resource group."
   value       = azurerm_resource_group.capstone.name
@@ -42,4 +41,15 @@ output "container_app_url" {
 output "container_app_identity_id" {
   description = "Resource ID of the managed identity used to pull the image."
   value       = azurerm_user_assigned_identity.acr_pull.id
+}
+
+output "dr_storage_account_name" {
+  description = "Name of the DR Storage Account."
+  value       = azurerm_storage_account.dr_storage.name
+}
+
+output "dr_storage_primary_access_key" {
+  description = "Primary access key for DR storage account."
+  value       = azurerm_storage_account.dr_storage.primary_access_key
+  sensitive   = true
 }

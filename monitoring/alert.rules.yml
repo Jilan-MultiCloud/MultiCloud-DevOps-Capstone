@@ -4,7 +4,7 @@
 groups:
   - name: MultiCloudAppAlerts
     rules:
-      # Trigger 1: Endpoint Blackout Detection
+      # Trigger 1: Endpoint Blackout Detection across AWS, Azure, and GCP
       - alert: MultiCloudEndpointDown
         expr: up{job=~".*-microservice-endpoint"} == 0
         for: 1m
@@ -13,15 +13,26 @@ groups:
           tier: infrastructure
         annotations:
           summary: "Multi-Cloud Endpoint Instance Down"
-          description: "Microservice node instance under job reference '{{ $labels.job }}' is unreachable for over 60 seconds."
+          description: "Microservice node instance under job reference '{{ $labels.job }}' is unreachable or failing health checks for over 60 seconds."
 
-      # Trigger 2: Python Client Request Router Errors
-      - alert: RouterSimulationErrorSpike
-        expr: rate(http_requests_total{status=~"5.*"}[5m]) / rate(http_requests_total[5m]) * 100 > 5
+      # Trigger 2: Python Client Request Router Offline
+      - alert: RouterSimulationOffline
+        expr: up{job="local-router-simulation"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          tier: application
+        annotations:
+          summary: "Python Request Router is Offline"
+          description: "The multi-cloud traffic router is down. Failover testing and API traffic routing are unavailable."
+
+      # Trigger 3: High Latency / Performance Degradation
+      - alert: EndpointHighLatency
+        expr: scrape_duration_seconds{job=~".*-microservice-endpoint"} > 2.0
         for: 2m
         labels:
           severity: warning
-          tier: application
+          tier: performance
         annotations:
-          summary: "High Failure Rate in Python Request Router"
-          description: "The python client routing cluster is reporting a simulated backend drop rate of {{ $value }}% over a running 5-minute interval window."
+          summary: "High Response Latency on {{ $labels.job }}"
+          description: "The cloud endpoint {{ $labels.instance }} is taking longer than 2 seconds to respond. This may indicate performance issues or increased egress costs."
