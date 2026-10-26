@@ -1,3 +1,8 @@
+provider "aws" {
+  alias  = "mumbai"
+  region = "ap-south-1"
+}
+
 data "archive_file" "aws_lambda_package" {
   type        = "zip"
   source_file = "${path.root}/../../../app/lambda_function.py"
@@ -14,9 +19,9 @@ module "aws" {
 module "aws_lambda" {
   source = "../../modules/aws_lambda"
 
-  provider "aws" {
-    alias  = "mumbai"
-    region = "ap-south-1"
+  # This is the correct way to pass the provider to the module
+  providers = {
+    aws = aws.mumbai
   }
 
   function_name    = "multicloud-capstone-api"
