@@ -1,0 +1,14 @@
+{
+  "uid": "multicloud-capstone",
+  "title": "Multi-Cloud Capstone",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {"from": "now-6h", "to": "now"},
+  "panels": [
+    {"id": 1, "type": "stat", "title": "Application health by cloud", "gridPos": {"x":0,"y":0,"w":12,"h":6}, "datasource":{"type":"prometheus","uid":"prometheus"},"targets":[{"expr":"capstone_cloud_healthy","legendFormat":"{{cloud}}"}]},
+    {"id": 2, "type": "timeseries", "title": "Endpoint probe latency (seconds)", "gridPos": {"x":12,"y":0,"w":12,"h":6}, "datasource":{"type":"prometheus","uid":"prometheus"},"targets":[{"expr":"capstone_probe_duration_seconds","legendFormat":"{{cloud}}"}]},
+    {"id": 3, "type": "timeseries", "title": "Monthly cost / budget (supplied billing inputs)", "gridPos": {"x":0,"y":6,"w":12,"h":8}, "datasource":{"type":"prometheus","uid":"prometheus"},"targets":[{"expr":"capstone_monthly_cost","legendFormat":"{{cloud}} actual {{currency}}"},{"expr":"capstone_monthly_budget","legendFormat":"{{cloud}} budget {{currency}}"}]},
+    {"id": 4, "type": "stat", "title": "Hours since verified backup", "gridPos": {"x":12,"y":6,"w":12,"h":8}, "datasource":{"type":"prometheus","uid":"prometheus"},"targets":[{"expr":"(time() - capstone_backup_last_success_timestamp_seconds) / 3600"}]}
+  ]
+}

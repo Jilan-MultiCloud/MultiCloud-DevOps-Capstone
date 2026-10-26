@@ -3,6 +3,11 @@ variable "bucket_name" {
   type        = string
 }
 
+variable "container_image" {
+  type    = string
+  default = null
+}
+
 variable "gcp_region" {
   description = "Google Cloud Storage bucket location"
   type        = string

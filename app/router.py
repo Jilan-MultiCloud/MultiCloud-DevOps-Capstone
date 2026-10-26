@@ -22,8 +22,9 @@ GCP_SERVICE_URL = os.getenv(
     "https://multicloud-capstone-kmacr5flaa-el.a.run.app",
 ).rstrip("/")
 HTTP_TIMEOUT = float(os.getenv("HTTP_TIMEOUT", "4"))
+AZURE_SERVICE_URL = os.getenv("AZURE_SERVICE_URL", "").rstrip("/")
 
-CLOUDS = ("aws", "gcp")
+CLOUDS = ("aws", "azure", "gcp")
 _counter_lock = threading.Lock()
 _state_lock = threading.Lock()
 _next_cloud = 0
@@ -52,7 +53,10 @@ def aws_auth():
 
 
 def cloud_url(cloud, path):
-    base = AWS_FUNCTION_URL if cloud == "aws" else GCP_SERVICE_URL
+    base = {"aws": AWS_FUNCTION_URL, "azure": AZURE_SERVICE_URL,
+            "gcp": GCP_SERVICE_URL}[cloud]
+    if not base:
+        raise RuntimeError(f"Configure the {cloud} service URL")
     return f"{base}{path}"
 
 
@@ -154,7 +158,7 @@ class RouterHandler(BaseHTTPRequestHandler):
         # Only allow simulation controls when explicitly enabled.
         # The server also binds to loopback by default.
         if path.startswith("/simulate/"):
-            if os.getenv("ENABLE_SIMULATION", "true").lower() != "true":
+            if os.getenv("ENABLE_SIMULATION", "false").lower() != "true":
                 self.send_json(403, {"error": "Simulation is disabled"})
                 return
 
@@ -167,8 +171,7 @@ class RouterHandler(BaseHTTPRequestHandler):
             ):
                 self.send_json(
                     400,
-                    {"error": "Use /simulate/aws/down, /simulate/aws/up, "
-                              "/simulate/gcp/down, or /simulate/gcp/up"},
+                    {"error": "Use /simulate/{aws|azure|gcp}/{down|up}"},
                 )
                 return
 
@@ -247,7 +250,7 @@ class RouterHandler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     server = ThreadingHTTPServer(("127.0.0.1", PORT), RouterHandler)
     print(f"Router listening at http://127.0.0.1:{PORT}")
-    print("Local simulation endpoints enabled.")
+    print("Simulation controls require ENABLE_SIMULATION=true.")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -9,3 +9,8 @@ variable "azure_acr_name" {
   description = "Globally unique Azure Container Registry name."
   type        = string
 }
+
+variable "container_image" {
+  type    = string
+  default = null
+}

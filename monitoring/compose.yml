@@ -1,0 +1,49 @@
+services:
+  exporter:
+    build:
+      context: ..
+      dockerfile: monitoring/Dockerfile
+    env_file: .env
+    environment:
+      BILLING_FILE: /data/billing.json
+      BACKUP_SUCCESS_FILE: /data/backup-success.json
+      AWS_SHARED_CREDENTIALS_FILE: /credentials/credentials
+      AWS_CONFIG_FILE: /credentials/config
+    volumes:
+      - ./data:/data:ro
+      - ${AWS_CREDENTIALS_DIR:?Set AWS_CREDENTIALS_DIR}:/credentials:ro
+    restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=7d"]
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus:/prometheus
+    ports: ["127.0.0.1:9090:9090"]
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana:11.6.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana:/var/lib/grafana
+    ports: ["127.0.0.1:3000:3000"]
+    restart: unless-stopped
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    command: ["--config.file=/etc/alertmanager/alertmanager.yml"]
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./data/slack-webhook:/run/secrets/slack-webhook:ro
+      - alertmanager:/alertmanager
+    ports: ["127.0.0.1:9093:9093"]
+    restart: unless-stopped
+volumes:
+  prometheus:
+  grafana:
+  alertmanager:

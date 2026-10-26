@@ -1,7 +1,7 @@
 
 import json
 import os
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
 CLOUD_NAME = os.getenv("CLOUD_NAME", "local")
@@ -39,7 +39,7 @@ class AppHandler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server = HTTPServer(("0.0.0.0", PORT), AppHandler)
+    server = ThreadingHTTPServer(("0.0.0.0", PORT), AppHandler)
     print(f"Starting app for {CLOUD_NAME} on port {PORT}")
     try:
         server.serve_forever()

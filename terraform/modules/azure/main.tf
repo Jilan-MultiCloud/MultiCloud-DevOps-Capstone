@@ -100,7 +100,7 @@ resource "azurerm_container_app" "capstone" {
 
     container {
       name   = "multicloud-capstone"
-      image  = "${azurerm_container_registry.capstone.login_server}/multicloud-capstone:latest"
+      image  = coalesce(var.container_image, "${azurerm_container_registry.capstone.login_server}/multicloud-capstone:latest")
       cpu    = 0.25
       memory = "0.5Gi"
 

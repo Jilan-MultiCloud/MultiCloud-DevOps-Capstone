@@ -6,7 +6,7 @@ resource "google_storage_bucket" "capstone" {
   public_access_prevention    = "enforced"
 
   versioning {
-    enabled = false
+    enabled = true
   }
 
   labels = {
@@ -40,7 +40,7 @@ resource "google_cloud_run_v2_service" "capstone" {
     }
 
     containers {
-      image = "asia-south1-docker.pkg.dev/heroviredacademics/cloud-run-source-deploy/multicloud-capstone@sha256:ff099483af832b978a640e6205fb3c9de234076a2f3896813a1f8807d895ceba"
+      image = coalesce(var.container_image, "asia-south1-docker.pkg.dev/heroviredacademics/cloud-run-source-deploy/multicloud-capstone@sha256:ff099483af832b978a640e6205fb3c9de234076a2f3896813a1f8807d895ceba")
 
       ports {
         container_port = 8080

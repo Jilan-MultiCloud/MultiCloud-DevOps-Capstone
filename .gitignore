@@ -32,3 +32,16 @@ vault-token*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Generated artifacts and local monitoring / recovery evidence
+.terraform-temp/
+**/tfplan
+*.zip
+__pycache__/
+*.pyc
+.venv/
+monitoring/.env
+monitoring/data/
+*.dump
+*.backup
+recovery/

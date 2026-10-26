@@ -1,0 +1,33 @@
+groups:
+  - name: capstone
+    rules:
+      - alert: CloudUnavailable
+        expr: capstone_cloud_healthy == 0
+        for: 2m
+        labels: {severity: critical}
+        annotations:
+          summary: '{{ $labels.cloud }} application health check is failing'
+      - alert: MonitoringUnavailable
+        expr: up{job="capstone"} == 0
+        for: 2m
+        labels: {severity: critical}
+        annotations:
+          summary: 'Multi-cloud health exporter is unavailable'
+      - alert: BackupStale
+        expr: (time() - capstone_backup_last_success_timestamp_seconds > 86400) and on() (capstone_backup_monitoring_enabled == 1)
+        for: 5m
+        labels: {severity: warning}
+        annotations:
+          summary: 'No verified multi-cloud backup in the last 24 hours'
+      - alert: MonthlyCostThreshold
+        expr: capstone_monthly_cost >= capstone_monthly_budget
+        for: 5m
+        labels: {severity: warning}
+        annotations:
+          summary: '{{ $labels.cloud }} supplied monthly spend exceeds its budget'
+      - alert: BillingDataStale
+        expr: time() - capstone_billing_data_timestamp_seconds > 86400
+        for: 5m
+        labels: {severity: warning}
+        annotations:
+          summary: 'Billing inputs are missing or older than 24 hours'

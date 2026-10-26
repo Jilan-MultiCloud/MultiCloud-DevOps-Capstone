@@ -19,16 +19,18 @@ module "aws_lambda" {
     aws = aws.mumbai
   }
 
-  function_name    = "multicloud-capstone-api"
-  lambda_filename  = data.archive_file.aws_lambda_package.output_path
-  source_code_hash = data.archive_file.aws_lambda_package.output_base64sha256
+  function_name     = "multicloud-capstone-api"
+  lambda_filename   = data.archive_file.aws_lambda_package.output_path
+  source_code_hash  = data.archive_file.aws_lambda_package.output_base64sha256
+  enable_public_api = var.enable_global_routing
 }
 
 module "azure" {
   source = "../../modules/azure"
 
-  azure_location = var.azure_location
-  azure_acr_name = var.azure_acr_name
+  azure_location  = var.azure_location
+  azure_acr_name  = var.azure_acr_name
+  container_image = var.azure_image
 }
 
 module "gcp" {
@@ -38,4 +40,5 @@ module "gcp" {
   gcp_region       = var.gcp_region
   gcp_project_id   = var.gcp_project_id
   cloud_run_region = var.gcp_cloud_run_region
+  container_image  = var.gcp_image
 }

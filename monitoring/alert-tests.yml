@@ -1,0 +1,16 @@
+rule_files: [/etc/prometheus/alerts.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'capstone_cloud_healthy{cloud="aws"}'
+        values: '0 0 0 0 1 1'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: CloudUnavailable
+        exp_alerts:
+          - exp_labels: {cloud: aws, severity: critical}
+            exp_annotations: {summary: 'aws application health check is failing'}
+      - eval_time: 5m
+        alertname: CloudUnavailable
+        exp_alerts: []
