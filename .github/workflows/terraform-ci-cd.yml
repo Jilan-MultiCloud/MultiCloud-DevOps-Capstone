@@ -18,7 +18,6 @@ permissions:
   contents: read
 
 jobs:
-  # STEP 1: Code Verification & Architecture Linting
   validate-infra:
     runs-on: ubuntu-latest
     defaults:
@@ -42,7 +41,6 @@ jobs:
       - name: Validate Structural Configurations
         run: terraform validate
 
-  # STEP 2: Multi-Cloud Docker Build & Registry Push
   build-and-push-artifacts:
     runs-on: ubuntu-latest
     needs: validate-infra
@@ -51,11 +49,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # --- GLOBAL BUILDX SETUP FOR LAYER CACHING ---
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      # --- 1. AWS ECR PUSH & CACHE CREATION ---
+      # --- 1. AWS ECR PUSH & PUBLIC GALLERY AUTHENTICATION ---
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -63,24 +57,31 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Login to Amazon ECR
-        id: login-ecr
+      - name: Login to Amazon ECR Public (For pulling base image)
         uses: aws-actions/amazon-ecr-login@v2
-        # Removed public flag to correctly log into and target your private account registry URI
+        with:
+          registry-type: public
 
-      - name: Build and Push to AWS ECR (Writes Cache)
+      - name: Login to Amazon ECR Private (For pushing final image)
+        id: login-ecr-private
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: private
+
+      - name: Build and Push to AWS ECR
         uses: docker/build-push-action@v5
+        env:
+          ECR_REGISTRY: 319918321628.dkr.ecr.us-east-1.amazonaws.com
+          ECR_REPOSITORY: multicloud-capstone
         with:
           context: ./app
           file: ./app/Dockerfile
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/multicloud-capstone:latest
-            ${{ steps.login-ecr.outputs.registry }}/multicloud-capstone:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
-      # --- 2. GCP ARTIFACT REGISTRY PUSH (Reuses Cache) ---
+      # --- 2. GCP ARTIFACT REGISTRY PUSH ---
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -89,7 +90,7 @@ jobs:
       - name: Configure Docker for GCP
         run: gcloud auth configure-docker asia-south1-docker.pkg.dev
 
-      - name: Build and Push to GCP (Instant Cache Hit)
+      - name: Build and Push to GCP
         uses: docker/build-push-action@v5
         with:
           context: ./app
@@ -98,9 +99,8 @@ jobs:
           tags: |
             asia-south1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/multicloud-capstone:latest
             asia-south1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/multicloud-capstone:${{ github.sha }}
-          cache-from: type=gha
 
-      # --- 3. AZURE ACR PUSH (Reuses Cache) ---
+      # --- 3. AZURE ACR PUSH ---
       - name: Authenticate to Azure ACR
         uses: docker/login-action@v3
         with:
@@ -108,7 +108,7 @@ jobs:
           username: ${{ secrets.AZURE_ACR_USERNAME }}
           password: ${{ secrets.AZURE_ACR_PASSWORD }}
 
-      - name: Build and Push to Azure (Instant Cache Hit)
+      - name: Build and Push to Azure
         uses: docker/build-push-action@v5
         with:
           context: ./app
@@ -117,9 +117,7 @@ jobs:
           tags: |
             ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/multicloud-capstone:latest
             ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/multicloud-capstone:${{ github.sha }}
-          cache-from: type=gha
 
-  # STEP 3: Multi-Cloud Infrastructure Deployment
   deploy-infra:
     runs-on: ubuntu-latest
     needs: build-and-push-artifacts
