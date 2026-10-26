@@ -1,0 +1,79 @@
+{
+  "checked_at": "2026-10-26T04:23:10.122982+00:00",
+  "scope": "local router; live cloud backends; simulated backend exclusions",
+  "outages": [
+    {
+      "excluded": "aws",
+      "selected": "azure",
+      "status": 200
+    },
+    {
+      "excluded": "azure",
+      "selected": "gcp",
+      "status": 200
+    },
+    {
+      "excluded": "gcp",
+      "selected": "aws",
+      "status": 200
+    }
+  ],
+  "baseline": {
+    "router": "healthy",
+    "clouds": {
+      "aws": {
+        "healthy": true,
+        "status_code": 200,
+        "response": {
+          "status": "healthy",
+          "cloud": "aws"
+        }
+      },
+      "azure": {
+        "healthy": true,
+        "status_code": 200,
+        "response": {
+          "status": "healthy",
+          "cloud": "azure"
+        }
+      },
+      "gcp": {
+        "healthy": true,
+        "status_code": 200,
+        "response": {
+          "status": "healthy",
+          "cloud": "gcp"
+        }
+      }
+    }
+  },
+  "recovery": {
+    "router": "healthy",
+    "clouds": {
+      "aws": {
+        "healthy": true,
+        "status_code": 200,
+        "response": {
+          "status": "healthy",
+          "cloud": "aws"
+        }
+      },
+      "azure": {
+        "healthy": true,
+        "status_code": 200,
+        "response": {
+          "status": "healthy",
+          "cloud": "azure"
+        }
+      },
+      "gcp": {
+        "healthy": true,
+        "status_code": 200,
+        "response": {
+          "status": "healthy",
+          "cloud": "gcp"
+        }
+      }
+    }
+  }
+}

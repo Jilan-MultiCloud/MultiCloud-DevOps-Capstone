@@ -113,6 +113,10 @@ resource "azurerm_container_app" "capstone" {
         name  = "PORT"
         value = "8080"
       }
+      env {
+        name  = "MEMORY_LIMIT_MB"
+        value = "512"
+      }
     }
   }
 

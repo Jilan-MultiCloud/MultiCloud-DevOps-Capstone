@@ -1,0 +1,8 @@
+# Use a host-run exporter when cloud credentials are provided by local CLI/SSO.
+# Start scripts.monitor on the host first. The default exporter container is disabled.
+services:
+  exporter:
+    profiles: [container-credentials]
+  prometheus:
+    volumes:
+      - ./prometheus-host.yml:/etc/prometheus/prometheus.yml:ro

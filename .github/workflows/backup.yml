@@ -1,0 +1,65 @@
+name: Verify database backup replicas
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 1 * * *'
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: capstone-database-backup
+  cancel-in-progress: false
+jobs:
+  backup:
+    if: vars.ENABLE_BACKUP_AUTOMATION == 'true' && github.ref == 'refs/heads/main'
+    environment: dev-backup
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PGHOST: ${{ vars.PGHOST }}
+      PGDATABASE: ${{ vars.PGDATABASE }}
+      PGUSER: ${{ vars.PGUSER }}
+      PGPASSWORD: ${{ secrets.PGPASSWORD }}
+      PGSSLMODE: verify-full
+      PGSSLROOTCERT: ${{ github.workspace }}/database-ca.pem
+      BACKUP_S3_BUCKET: ${{ vars.BACKUP_S3_BUCKET }}
+      BACKUP_GCS_BUCKET: ${{ vars.BACKUP_GCS_BUCKET }}
+      GOOGLE_CLOUD_PROJECT: ${{ vars.GCP_PROJECT_ID }}
+      BACKUP_AZURE_ACCOUNT_URL: ${{ vars.BACKUP_AZURE_ACCOUNT_URL }}
+      BACKUP_AZURE_CONTAINER: ${{ vars.BACKUP_AZURE_CONTAINER }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      - run: pip install -r requirements.txt
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-16
+      - name: Configure database TLS trust
+        env:
+          DATABASE_CA_PEM: ${{ secrets.DATABASE_CA_PEM }}
+        run: |
+          test -n "$DATABASE_CA_PEM"
+          printf '%s' "$DATABASE_CA_PEM" > "$PGSSLROOTCERT"
+          chmod 600 "$PGSSLROOTCERT"
+      - run: python -m scripts.database_backup --success-file backup-success.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-backup-metadata
+          path: backup-success.json
+          retention-days: 7

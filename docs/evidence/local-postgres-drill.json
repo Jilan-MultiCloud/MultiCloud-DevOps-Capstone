@@ -1,0 +1,27 @@
+{
+  "started_at": "2026-10-26T04:10:23.783969+00:00",
+  "scope": "local PostgreSQL; simulated cloud storage",
+  "source_stopped_before_restore": true,
+  "backup_sha256": "6f8171bfc96773b8c3ae7cca09222dbd62f61e4aca2123659173b590e92e757b",
+  "replicas": {
+    "aws": {
+      "integrity_verified": true,
+      "restored_rows": 3,
+      "rows_after_snapshot_not_recovered": 1,
+      "restore_seconds": 1.356
+    },
+    "azure": {
+      "integrity_verified": true,
+      "restored_rows": 3,
+      "rows_after_snapshot_not_recovered": 1,
+      "restore_seconds": 1.395
+    },
+    "gcp": {
+      "integrity_verified": true,
+      "restored_rows": 3,
+      "rows_after_snapshot_not_recovered": 1,
+      "restore_seconds": 1.475
+    }
+  },
+  "limitation": "Local timings are not measured cloud RTO/RPO."
+}

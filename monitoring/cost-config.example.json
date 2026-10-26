@@ -1,0 +1,15 @@
+{
+  "aws": {"budget": 5, "currency": "USD"},
+  "azure": {
+    "scope": "/subscriptions/REPLACE/resourceGroups/rg-multicloud-capstone-dev",
+    "budget": 500,
+    "currency": "INR"
+  },
+  "gcp": {
+    "query_project": "REPLACE",
+    "project": "heroviredacademics",
+    "table": "REPLACE.dataset.existing_billing_export",
+    "budget": 500,
+    "currency": "INR"
+  }
+}

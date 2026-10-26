@@ -6,6 +6,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlsplit
 
 import boto3
+from botocore.exceptions import BotoCoreError
 import requests
 from requests_aws4auth import AWS4Auth
 
@@ -102,6 +103,8 @@ def check_cloud(cloud):
             }
 
         payload = response.json()
+        if not isinstance(payload, dict):
+            return {"healthy": False, "reason": "invalid_health_payload"}
 
         return {
             "healthy": payload.get("status") == "healthy",
@@ -118,7 +121,7 @@ def check_cloud(cloud):
             "detail": str(exc),
         }
 
-    except (ValueError, RuntimeError) as exc:
+    except (ValueError, RuntimeError, BotoCoreError) as exc:
         print(f"Health check failed for {cloud}: {type(exc).__name__}")
         return {
             "healthy": False,
@@ -232,7 +235,7 @@ class RouterHandler(BaseHTTPRequestHandler):
                 self.wfile.write(body)
                 print(f"{self.path} -> {cloud} HTTP {response.status_code}")
                 return
-            except (requests.RequestException, RuntimeError) as exc:
+            except (requests.RequestException, RuntimeError, BotoCoreError) as exc:
                 last_error = f"{cloud} request failed: {type(exc).__name__}"
 
         self.send_json(

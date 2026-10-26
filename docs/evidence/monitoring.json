@@ -1,0 +1,108 @@
+{
+  "checked_at": "2026-10-26T04:22:34.679417+00:00",
+  "grafana_database": "ok",
+  "dashboard": "Multi-Cloud Capstone",
+  "panels": 6,
+  "queries": {
+    "up": [
+      {
+        "metric": {
+          "__name__": "up",
+          "instance": "host.docker.internal:9108",
+          "job": "capstone"
+        },
+        "value": [
+          1792988554.48,
+          "1"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "up",
+          "instance": "localhost:9090",
+          "job": "prometheus"
+        },
+        "value": [
+          1792988554.48,
+          "1"
+        ]
+      }
+    ],
+    "capstone_cloud_healthy": [
+      {
+        "metric": {
+          "__name__": "capstone_cloud_healthy",
+          "cloud": "aws",
+          "instance": "host.docker.internal:9108",
+          "job": "capstone"
+        },
+        "value": [
+          1792988554.606,
+          "1"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "capstone_cloud_healthy",
+          "cloud": "azure",
+          "instance": "host.docker.internal:9108",
+          "job": "capstone"
+        },
+        "value": [
+          1792988554.606,
+          "1"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "capstone_cloud_healthy",
+          "cloud": "gcp",
+          "instance": "host.docker.internal:9108",
+          "job": "capstone"
+        },
+        "value": [
+          1792988554.606,
+          "1"
+        ]
+      }
+    ],
+    "capstone_metrics_available": [
+      {
+        "metric": {
+          "__name__": "capstone_metrics_available",
+          "cloud": "aws",
+          "instance": "host.docker.internal:9108",
+          "job": "capstone"
+        },
+        "value": [
+          1792988554.652,
+          "0"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "capstone_metrics_available",
+          "cloud": "azure",
+          "instance": "host.docker.internal:9108",
+          "job": "capstone"
+        },
+        "value": [
+          1792988554.652,
+          "0"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "capstone_metrics_available",
+          "cloud": "gcp",
+          "instance": "host.docker.internal:9108",
+          "job": "capstone"
+        },
+        "value": [
+          1792988554.652,
+          "0"
+        ]
+      }
+    ]
+  }
+}

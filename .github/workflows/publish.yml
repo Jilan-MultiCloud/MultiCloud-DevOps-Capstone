@@ -41,6 +41,7 @@ jobs:
           from zipfile import ZipFile
           with ZipFile('lambda_function.zip', 'w') as archive:
               archive.write('app/lambda_function.py', 'lambda_function.py')
+              archive.write('app/runtime_metrics.py', 'runtime_metrics.py')
           PY
       - uses: actions/upload-artifact@v4
         with:

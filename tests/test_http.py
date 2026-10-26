@@ -34,6 +34,14 @@ class HttpTests(unittest.TestCase):
             self.assertEqual(result["statusCode"], expected)
             self.assertIsInstance(json.loads(result["body"]), dict)
 
+    def test_metrics_format_on_both_runtimes(self):
+        response = requests.get(self.url + "/metrics", timeout=3)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("process_cpu_seconds_total", response.text)
+        result = lambda_handler({"requestContext": {"http": {"path": "/metrics"}}}, None)
+        self.assertIn("text/plain", result["headers"]["Content-Type"])
+        self.assertIn("process_cpu_seconds_total", result["body"])
+
 
 class RouterTests(unittest.TestCase):
     def setUp(self):
@@ -84,6 +92,9 @@ class RouterTests(unittest.TestCase):
     def test_invalid_health_payload_is_unhealthy(self):
         response = self.response()
         response._content = b"not-json"
+        with patch.object(router, "request_cloud", return_value=response):
+            self.assertFalse(router.check_cloud("gcp")["healthy"])
+        response._content = b"[]"
         with patch.object(router, "request_cloud", return_value=response):
             self.assertFalse(router.check_cloud("gcp")["healthy"])
 

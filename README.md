@@ -1,4 +1,24 @@
-﻿# Multi-Cloud Deployment and Management with Terraform
+# Multi-Cloud Deployment and Management with Terraform
+
+## Submission preparation — 31 October 2026
+
+The current implementation and remaining live acceptance gates are documented in:
+
+- [Requirement-by-requirement review](docs/capstone-review.md)
+- [Setup, state recovery, deployment and monitoring](docs/operations.md)
+- [Disaster recovery and replication runbook](docs/disaster-recovery.md)
+- [Submission report, checklist and viva guide](docs/submission.md)
+- [Dated verification results](docs/verification.md)
+
+This branch adds three-cloud routing, runtime metrics, local Prometheus/Grafana/
+Alertmanager, verified backup/restore tooling, a real local PostgreSQL recovery drill,
+billing collectors and reviewed deployment workflows. Optional paid infrastructure
+is disabled. Live deployment, external alerts and cross-cloud recovery must be
+verified separately; local tests do not establish production readiness.
+
+**State recovery first:** the supplied original project folder has no Terraform state,
+and the committed saved plan contains only an older incomplete snapshot. Follow the
+operations runbook before applying any infrastructure change.
 
 An individual DevOps capstone project demonstrating Infrastructure as Code (IaC) across Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP). The project uses Terraform to manage cloud resources and demonstrates application health checks, container deployment, and simulated cross-cloud routing, failover, and recovery.
 
@@ -72,7 +92,7 @@ The local router is a demonstration component. Its simulated failover is not the
 .
 ├── .github/
 │   └── workflows/
-│       └── terraform-checks.yml
+│       └── checks.yml
 ├── app/
 │   ├── app.py
 │   ├── Dockerfile
@@ -182,6 +202,7 @@ The containerized Python application in `app/app.py` exposes these routes:
 | `/` | HTTP 200 | Application and cloud status |
 | `/health` | HTTP 200 | Health check |
 | `/not-found` | HTTP 404 | Not-found handling example |
+| `/metrics` | HTTP 200 | Runtime metrics (after updated release deployment) |
 
 The application uses the `CLOUD_NAME` environment variable to identify the cloud and `PORT` to configure the HTTP listener.
 
@@ -231,11 +252,12 @@ These tests validate the HTTP behavior of the deployed Azure application. Use cl
 
 ## Router failover demonstration
 
-The Python router in `app/router.py` provides a local simulation of routing between AWS Lambda and GCP Cloud Run.
+The Python router in `app/router.py` provides a local simulation of routing between AWS Lambda, Azure Container Apps and GCP Cloud Run.
 
 Start the router from the repository root:
 
 ```powershell
+$env:ENABLE_SIMULATION = "true"
 python .\app\router.py
 ```
 
@@ -329,7 +351,7 @@ terraform -chdir="terraform/environments/dev" init
 ### Format and validate
 
 ```powershell
-terraform -chdir="terraform/environments/dev" fmt -check -recursive
+terraform fmt -check -recursive terraform
 terraform -chdir="terraform/environments/dev" validate
 ```
 
@@ -459,10 +481,10 @@ Cloud services may incur charges even when application traffic is low.
 - [x] Local router simulation with failover and recovery endpoints
 - [x] Screenshot evidence for infrastructure, application tests, and router demonstrations
 
-### Remaining work
+### Live acceptance gates (code status is in the review above)
 
 - [ ] Finalize and test multi-cloud CI/CD workflows
-- [ ] Automate container image publishing to ECR, ACR, and Google Artifact Registry
+- [ ] Run the supplied ACR/Artifact Registry publishing workflow; AWS uses a ZIP and does not need ECR
 - [ ] Automate separate ZIP packaging and deployment for AWS Lambda
 - [ ] Configure monitoring and alerting appropriate to the project budget
 - [ ] Document and test backup/restore procedures

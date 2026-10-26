@@ -39,7 +39,6 @@ services:
     command: ["--config.file=/etc/alertmanager/alertmanager.yml"]
     volumes:
       - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
-      - ./data/slack-webhook:/run/secrets/slack-webhook:ro
       - alertmanager:/alertmanager
     ports: ["127.0.0.1:9093:9093"]
     restart: unless-stopped

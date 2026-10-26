@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PORT=8080
 
 WORKDIR /app
-COPY app.py .
+COPY app.py runtime_metrics.py ./
 USER nobody
 
 EXPOSE 8080

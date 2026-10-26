@@ -4,11 +4,143 @@
   "schemaVersion": 39,
   "version": 1,
   "refresh": "30s",
-  "time": {"from": "now-6h", "to": "now"},
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
   "panels": [
-    {"id": 1, "type": "stat", "title": "Application health by cloud", "gridPos": {"x":0,"y":0,"w":12,"h":6}, "datasource":{"type":"prometheus","uid":"prometheus"},"targets":[{"expr":"capstone_cloud_healthy","legendFormat":"{{cloud}}"}]},
-    {"id": 2, "type": "timeseries", "title": "Endpoint probe latency (seconds)", "gridPos": {"x":12,"y":0,"w":12,"h":6}, "datasource":{"type":"prometheus","uid":"prometheus"},"targets":[{"expr":"capstone_probe_duration_seconds","legendFormat":"{{cloud}}"}]},
-    {"id": 3, "type": "timeseries", "title": "Monthly cost / budget (supplied billing inputs)", "gridPos": {"x":0,"y":6,"w":12,"h":8}, "datasource":{"type":"prometheus","uid":"prometheus"},"targets":[{"expr":"capstone_monthly_cost","legendFormat":"{{cloud}} actual {{currency}}"},{"expr":"capstone_monthly_budget","legendFormat":"{{cloud}} budget {{currency}}"}]},
-    {"id": 4, "type": "stat", "title": "Hours since verified backup", "gridPos": {"x":12,"y":6,"w":12,"h":8}, "datasource":{"type":"prometheus","uid":"prometheus"},"targets":[{"expr":"(time() - capstone_backup_last_success_timestamp_seconds) / 3600"}]}
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Application health by cloud",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "capstone_cloud_healthy",
+          "legendFormat": "{{cloud}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Endpoint probe latency (seconds)",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "capstone_probe_duration_seconds",
+          "legendFormat": "{{cloud}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Monthly cost / budget (supplied billing inputs)",
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "capstone_monthly_cost",
+          "legendFormat": "{{cloud}} actual {{currency}}"
+        },
+        {
+          "expr": "capstone_monthly_budget",
+          "legendFormat": "{{cloud}} budget {{currency}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Hours since verified backup",
+      "gridPos": {
+        "x": 12,
+        "y": 6,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "(time() - capstone_backup_last_success_timestamp_seconds) / 3600"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Sampled process memory / limit (bytes)",
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "capstone_process_memory_bytes",
+          "legendFormat": "{{cloud}} resident"
+        },
+        {
+          "expr": "capstone_process_memory_limit_bytes",
+          "legendFormat": "{{cloud}} limit"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Runtime metrics available (requires updated app)",
+      "gridPos": {
+        "x": 12,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "capstone_metrics_available",
+          "legendFormat": "{{cloud}}"
+        }
+      ]
+    }
   ]
 }

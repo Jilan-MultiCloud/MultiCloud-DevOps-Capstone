@@ -1,0 +1,22 @@
+{
+  "started_at": "2026-10-26T04:25:34.859222+00:00",
+  "scope": "local PostgreSQL; real cloud object storage: aws,gcp",
+  "backup_id": "drill_e620a958ab0049218ecade34a643739c",
+  "source_stopped_before_restore": true,
+  "backup_sha256": "f44e8ef929e36530cbd7fb45dd22d4490f4e76f6fb83974cc614d6f867d66ec7",
+  "replicas": {
+    "aws": {
+      "integrity_verified": true,
+      "restored_rows": 3,
+      "rows_after_snapshot_not_recovered": 1,
+      "restore_seconds": 4.547
+    },
+    "gcp": {
+      "integrity_verified": true,
+      "restored_rows": 3,
+      "rows_after_snapshot_not_recovered": 1,
+      "restore_seconds": 2.57
+    }
+  },
+  "limitation": "Local timings are not measured cloud RTO/RPO."
+}

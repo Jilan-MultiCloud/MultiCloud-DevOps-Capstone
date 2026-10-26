@@ -50,6 +50,10 @@ resource "google_cloud_run_v2_service" "capstone" {
         name  = "CLOUD_NAME"
         value = "gcp"
       }
+      env {
+        name  = "MEMORY_LIMIT_MB"
+        value = "256"
+      }
 
       resources {
         limits = {

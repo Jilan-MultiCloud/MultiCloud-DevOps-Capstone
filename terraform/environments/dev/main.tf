@@ -1,7 +1,14 @@
 
 data "archive_file" "aws_lambda_package" {
-  type        = "zip"
-  source_file = "${path.root}/../../../app/lambda_function.py"
+  type = "zip"
+  source {
+    content  = file("${path.root}/../../../app/lambda_function.py")
+    filename = "lambda_function.py"
+  }
+  source {
+    content  = file("${path.root}/../../../app/runtime_metrics.py")
+    filename = "runtime_metrics.py"
+  }
   output_path = "${path.root}/lambda_function.zip"
 }
 

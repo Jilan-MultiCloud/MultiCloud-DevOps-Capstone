@@ -1,0 +1,12 @@
+.git
+**/.terraform
+**/.env
+**/.env.*
+**/data
+**/*.tfstate*
+**/tfplan
+**/*.tfplan
+**/__pycache__
+**/*.dump
+**/*.zip
+.terraform-temp

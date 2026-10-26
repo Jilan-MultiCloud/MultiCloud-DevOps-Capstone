@@ -19,6 +19,18 @@ groups:
         labels: {severity: warning}
         annotations:
           summary: 'No verified multi-cloud backup in the last 24 hours'
+      - alert: ApplicationMemoryHigh
+        expr: capstone_process_memory_bytes / capstone_process_memory_limit_bytes > 0.8
+        for: 5m
+        labels: {severity: warning}
+        annotations:
+          summary: '{{ $labels.cloud }} sampled process exceeds 80% of its memory budget'
+      - alert: RuntimeMetricsUnavailable
+        expr: capstone_metrics_available == 0
+        for: 5m
+        labels: {severity: warning}
+        annotations:
+          summary: '{{ $labels.cloud }} runtime metrics are unavailable'
       - alert: MonthlyCostThreshold
         expr: capstone_monthly_cost >= capstone_monthly_budget
         for: 5m

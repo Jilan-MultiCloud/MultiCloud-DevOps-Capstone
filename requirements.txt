@@ -5,3 +5,4 @@ azure-identity>=1.19,<2
 azure-storage-blob>=12.24,<13
 google-cloud-storage>=3.0,<4
 prometheus-client>=0.21,<1
+google-cloud-bigquery>=3.25,<4
