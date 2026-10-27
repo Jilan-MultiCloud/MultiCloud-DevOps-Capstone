@@ -1,4 +1,3 @@
-
 resource "google_storage_bucket" "capstone" {
   name                        = var.bucket_name
   location                    = var.gcp_region
@@ -40,7 +39,8 @@ resource "google_cloud_run_v2_service" "capstone" {
     }
 
     containers {
-      image = "asia-south1-docker.pkg.dev/heroviredacademics/cloud-run-source-deploy/multicloud-capstone@sha256:ff099483af832b978a640e6205fb3c9de234076a2f3896813a1f8807d895ceba"
+      # Updated to dynamically inject your new GCP Project ID instead of the hardcoded heroviredacademics string
+      image = "asia-south1-docker.pkg.dev/${var.gcp_project_id}/cloud-run-source-deploy/multicloud-capstone:latest"
 
       ports {
         container_port = 8080

@@ -85,7 +85,8 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          # Updated to use your new organization GCP Service Account JSON key
+          credentials_json: ${{ secrets.GCP_MY_ORG_SA_KEY }}
 
       - name: Configure Docker for GCP
         run: gcloud auth configure-docker asia-south1-docker.pkg.dev
@@ -97,8 +98,8 @@ jobs:
           file: ./app/Dockerfile
           push: true
           tags: |
-            asia-south1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/multicloud-capstone:latest
-            asia-south1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/multicloud-capstone:${{ github.sha }}
+            asia-south1-docker.pkg.dev/${{ secrets.GCP_MY_ORG_PROJECT_ID }}/cloud-run-source-deploy/multicloud-capstone:latest
+            asia-south1-docker.pkg.dev/${{ secrets.GCP_MY_ORG_PROJECT_ID }}/cloud-run-source-deploy/multicloud-capstone:${{ github.sha }}
 
       # --- 3. AZURE ACR PUSH ---
       - name: Authenticate to Azure ACR
@@ -131,6 +132,10 @@ jobs:
       AWS_REGION: "us-east-1"
       VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
       VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+      # Added GCP authentication for Terraform
+      GOOGLE_CREDENTIALS: ${{ secrets.GCP_MY_ORG_SA_KEY }}
+      # Injected the new GCP project ID variable so Terraform provisions resources in the new project
+      TF_VAR_gcp_project_id: ${{ secrets.GCP_MY_ORG_PROJECT_ID }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
