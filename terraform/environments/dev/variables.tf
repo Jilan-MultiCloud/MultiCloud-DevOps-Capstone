@@ -10,6 +10,12 @@ variable "azure_location" {
   default     = "centralindia"
 }
 
+variable "azure_resource_group_name" {
+  description = "Azure resource group name for capstone resources."
+  type        = string
+  default     = "rg-multicloud-centralindia"
+}
+
 variable "gcp_project_id" {
   description = "Existing Google Cloud project ID. Set TF_VAR_gcp_project_id locally."
   type        = string
