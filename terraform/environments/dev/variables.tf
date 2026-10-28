@@ -1,26 +1,25 @@
-
 variable "aws_region" {
   description = "AWS region for capstone resources."
   type        = string
-  default     = "us-east-1"
+  default     = "ap-south-1"
 }
 
 variable "azure_location" {
   description = "Azure region for capstone resources."
   type        = string
-  default     = "East US"
+  default     = "centralindia"
 }
 
 variable "gcp_project_id" {
   description = "Existing Google Cloud project ID. Set TF_VAR_gcp_project_id locally."
   type        = string
-  default     = ""
+  default     = "multicloud-capstone"
 }
 
 variable "gcp_region" {
   description = "Google Cloud Storage bucket location."
   type        = string
-  default     = "us-central1"
+  default     = "asia-south1"
 }
 
 variable "gcp_cloud_run_region" {
@@ -38,6 +37,7 @@ variable "bucket_name" {
 variable "gcp_bucket_name" {
   description = "Globally unique Google Cloud Storage bucket name."
   type        = string
+  default     = "multicloud-capstone-storage-jilan-2026"
 }
 
 variable "azure_acr_name" {

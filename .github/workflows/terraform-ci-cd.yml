@@ -36,7 +36,7 @@ jobs:
         run: terraform fmt -check -recursive ../../modules/
 
       - name: Initialize Provider Locks Without Remote State
-        run: terraform init -backend=false
+        run: terraform init -backend=false -input=false
 
       - name: Validate Structural Configurations
         run: terraform validate
@@ -49,13 +49,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # --- 1. AWS ECR PUSH & PUBLIC GALLERY AUTHENTICATION ---
+      # --- 1. AWS ECR PUSH & PUBLIC GALLERY AUTHENTICATION (ap-south-1 Mumbai) ---
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: ap-south-1
 
       - name: Login to Amazon ECR Public (For pulling base image)
         uses: aws-actions/amazon-ecr-login@v2
@@ -71,7 +71,7 @@ jobs:
       - name: Build and Push to AWS ECR
         uses: docker/build-push-action@v5
         env:
-          ECR_REGISTRY: 319918321628.dkr.ecr.us-east-1.amazonaws.com
+          ECR_REGISTRY: 319918321628.dkr.ecr.ap-south-1.amazonaws.com
           ECR_REPOSITORY: multicloud-capstone
         with:
           context: ./app
@@ -81,11 +81,10 @@ jobs:
             ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
             ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
-      # --- 2. GCP ARTIFACT REGISTRY PUSH ---
+      # --- 2. GCP ARTIFACT REGISTRY PUSH (asia-south1 Mumbai) ---
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          # Updated to use your new organization GCP Service Account JSON key
           credentials_json: ${{ secrets.GCP_MY_ORG_SA_KEY }}
 
       - name: Configure Docker for GCP
@@ -129,13 +128,12 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: "us-east-1"
+      AWS_REGION: "ap-south-1"
       VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
       VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
-      # Added GCP authentication for Terraform
       GOOGLE_CREDENTIALS: ${{ secrets.GCP_MY_ORG_SA_KEY }}
-      # Injected the new GCP project ID variable so Terraform provisions resources in the new project
       TF_VAR_gcp_project_id: ${{ secrets.GCP_MY_ORG_PROJECT_ID }}
+      TF_VAR_gcp_bucket_name: "multicloud-capstone-storage-jilan-2026"
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -146,10 +144,10 @@ jobs:
           terraform_version: "1.9.0"
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform plan -input=false -out=tfplan
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -input=false -auto-approve tfplan
