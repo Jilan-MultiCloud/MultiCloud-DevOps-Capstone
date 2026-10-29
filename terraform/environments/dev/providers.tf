@@ -2,9 +2,8 @@
 # SECURE CREDENTIAL ARTIFACT RETRIEVAL VIA HASHICORP VAULT
 # ==============================================================================
 provider "vault" {
-  # Configuration parameters implicitly mapped via runtime environment parameters:
-  # VAULT_ADDR  - Address targeting secure credentials cluster
-  # VAULT_TOKEN - Fine-grained capability access authorization token
+  address = "http://127.0.0.1:8200"
+  # VAULT_TOKEN environment variable will automatically handle authentication
 }
 
 data "vault_generic_secret" "aws_secrets" {

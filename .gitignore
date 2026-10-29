@@ -4,10 +4,15 @@
 *.tfstate.*
 *.tfstate.backup
 *.tfplan
+tfplan
 crash.log
 crash.*.log
 .terraformrc
 terraform.rc
+
+# Application build packages & binaries
+*.zip
+*.tar.gz
 
 # Variable files may contain secrets
 *.tfvars

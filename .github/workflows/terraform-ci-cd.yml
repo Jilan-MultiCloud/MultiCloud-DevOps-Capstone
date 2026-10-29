@@ -49,6 +49,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       # --- 1. AWS ECR PUSH (ap-south-1 Mumbai) ---
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -57,12 +60,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
-      - name: Login to Amazon ECR Public (For pulling base image)
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          registry-type: public
-
-      - name: Login to Amazon ECR Private (For pushing final image)
+      - name: Login to Amazon ECR Private
         id: login-ecr-private
         uses: aws-actions/amazon-ecr-login@v2
         with:
@@ -70,25 +68,28 @@ jobs:
 
       - name: Build and Push to AWS ECR
         uses: docker/build-push-action@v5
-        env:
-          ECR_REGISTRY: 319918321628.dkr.ecr.ap-south-1.amazonaws.com
-          ECR_REPOSITORY: multicloud-capstone
         with:
           context: ./app
           file: ./app/Dockerfile
           push: true
           tags: |
-            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
-            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.login-ecr-private.outputs.registry }}/multicloud-capstone:latest
+            ${{ steps.login-ecr-private.outputs.registry }}/multicloud-capstone:${{ github.sha }}
 
       # --- 2. GCP ARTIFACT REGISTRY PUSH (asia-south1 Mumbai) ---
       - name: Authenticate to Google Cloud
+        id: auth-gcp
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_MY_ORG_SA_KEY }}
+          token_format: 'access_token'
 
-      - name: Configure Docker for GCP
-        run: gcloud auth configure-docker asia-south1-docker.pkg.dev
+      - name: Login to GCP Artifact Registry
+        uses: docker/login-action@v3
+        with:
+          registry: asia-south1-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth-gcp.outputs.access_token }}
 
       - name: Build and Push to GCP
         uses: docker/build-push-action@v5
@@ -151,4 +152,4 @@ jobs:
         run: terraform plan -input=false -out=tfplan
 
       - name: Terraform Apply
-        run: terraform apply -input=false -auto-approve tfplan
+        run: terraform apply -input=false tfplan
