@@ -2,8 +2,8 @@
 # SECURE CREDENTIAL ARTIFACT RETRIEVAL VIA HASHICORP VAULT
 # ==============================================================================
 provider "vault" {
-  address = "http://127.0.0.1:8200"
-  # VAULT_TOKEN environment variable will automatically handle authentication
+  address   = var.vault_addr
+  namespace = var.vault_namespace
 }
 
 data "vault_generic_secret" "aws_secrets" {
@@ -23,8 +23,25 @@ data "vault_generic_secret" "gcp_secrets" {
 # ==============================================================================
 provider "aws" {
   region     = var.aws_region
-  access_key = data.vault_generic_secret.aws_secrets.data["access_key"]
-  secret_key = data.vault_generic_secret.aws_secrets.data["secret_key"]
+  access_key = data.vault_generic_secret.aws_secrets.data["access_key_id"]
+  secret_key = data.vault_generic_secret.aws_secrets.data["secret_access_key"]
+
+  default_tags {
+    tags = {
+      Environment = "Development"
+      Project     = "MultiCloud-DevOps-Capstone"
+      ManagedBy   = "Terraform"
+      Owner       = "Jilan-MultiCloud"
+    }
+  }
+}
+
+# Aliased AWS provider for Lambda module
+provider "aws" {
+  alias      = "mumbai"
+  region     = var.aws_region
+  access_key = data.vault_generic_secret.aws_secrets.data["access_key_id"]
+  secret_key = data.vault_generic_secret.aws_secrets.data["secret_access_key"]
 
   default_tags {
     tags = {
@@ -59,7 +76,20 @@ provider "azurerm" {
 # GOOGLE CLOUD PLATFORM (GCP) LAYER INITIALIZATION
 # ==============================================================================
 provider "google" {
-  project     = var.gcp_project_id
-  region      = var.gcp_region
-  credentials = data.vault_generic_secret.gcp_secrets.data["service_account_key_json"]
+  project = var.gcp_project_id
+  region  = var.gcp_region
+
+  credentials = jsonencode({
+    type                        = data.vault_generic_secret.gcp_secrets.data["type"]
+    project_id                  = data.vault_generic_secret.gcp_secrets.data["project_id"]
+    private_key_id              = data.vault_generic_secret.gcp_secrets.data["private_key_id"]
+    private_key                 = data.vault_generic_secret.gcp_secrets.data["private_key"]
+    client_email                = data.vault_generic_secret.gcp_secrets.data["client_email"]
+    client_id                   = data.vault_generic_secret.gcp_secrets.data["client_id"]
+    auth_uri                    = data.vault_generic_secret.gcp_secrets.data["auth_uri"]
+    token_uri                   = data.vault_generic_secret.gcp_secrets.data["token_uri"]
+    auth_provider_x509_cert_url = data.vault_generic_secret.gcp_secrets.data["auth_provider_x509_cert_url"]
+    client_x509_cert_url        = data.vault_generic_secret.gcp_secrets.data["client_x509_cert_url"]
+    universe_domain             = data.vault_generic_secret.gcp_secrets.data["universe_domain"]
+  })
 }

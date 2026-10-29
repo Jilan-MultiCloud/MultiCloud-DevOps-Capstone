@@ -17,13 +17,13 @@ variable "azure_resource_group_name" {
 }
 
 variable "gcp_project_id" {
-  description = "Existing Google Cloud project ID. Set TF_VAR_gcp_project_id locally."
+  description = "Existing Google Cloud project ID."
   type        = string
   default     = "multicloud-capstone"
 }
 
 variable "gcp_region" {
-  description = "Google Cloud Storage bucket location."
+  description = "Google Cloud region."
   type        = string
   default     = "asia-south1"
 }
@@ -50,4 +50,16 @@ variable "azure_acr_name" {
   description = "Globally unique Azure Container Registry name."
   type        = string
   default     = "jilanmccapstone2026"
+}
+
+variable "vault_addr" {
+  description = "HashiCorp Vault cluster URL."
+  type        = string
+  default     = ""
+}
+
+variable "vault_namespace" {
+  description = "HashiCorp Vault namespace."
+  type        = string
+  default     = "admin"
 }

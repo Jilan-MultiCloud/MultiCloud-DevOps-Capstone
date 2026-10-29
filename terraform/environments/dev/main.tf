@@ -19,7 +19,6 @@ module "aws" {
 module "aws_lambda" {
   source = "../../modules/aws_lambda"
 
-  # This is the correct way to pass the provider to the module
   providers = {
     aws = aws.mumbai
   }
