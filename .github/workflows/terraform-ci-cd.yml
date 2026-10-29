@@ -2,13 +2,13 @@ name: Multi-Cloud CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - "terraform/**"
       - "app/**"
       - ".github/workflows/terraform-ci-cd.yml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - "terraform/**"
       - ".github/workflows/terraform-ci-cd.yml"
@@ -45,6 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate-infra
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -52,7 +53,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # --- 1. AWS ECR PUSH (ap-south-1 Mumbai) ---
+      # --- 1. AWS ECR LOGIN ---
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -66,17 +67,7 @@ jobs:
         with:
           registry-type: private
 
-      - name: Build and Push to AWS ECR
-        uses: docker/build-push-action@v5
-        with:
-          context: ./app
-          file: ./app/Dockerfile
-          push: true
-          tags: |
-            ${{ steps.login-ecr-private.outputs.registry }}/multicloud-capstone:latest
-            ${{ steps.login-ecr-private.outputs.registry }}/multicloud-capstone:${{ github.sha }}
-
-      # --- 2. GCP ARTIFACT REGISTRY PUSH (asia-south1 Mumbai) ---
+      # --- 2. GOOGLE CLOUD LOGIN ---
       - name: Authenticate to Google Cloud
         id: auth-gcp
         uses: google-github-actions/auth@v2
@@ -91,17 +82,7 @@ jobs:
           username: oauth2accesstoken
           password: ${{ steps.auth-gcp.outputs.access_token }}
 
-      - name: Build and Push to GCP
-        uses: docker/build-push-action@v5
-        with:
-          context: ./app
-          file: ./app/Dockerfile
-          push: true
-          tags: |
-            asia-south1-docker.pkg.dev/${{ secrets.GCP_MY_ORG_PROJECT_ID }}/cloud-run-source-deploy/multicloud-capstone:latest
-            asia-south1-docker.pkg.dev/${{ secrets.GCP_MY_ORG_PROJECT_ID }}/cloud-run-source-deploy/multicloud-capstone:${{ github.sha }}
-
-      # --- 3. AZURE ACR PUSH ---
+      # --- 3. AZURE ACR LOGIN ---
       - name: Authenticate to Azure ACR
         uses: docker/login-action@v3
         with:
@@ -109,15 +90,39 @@ jobs:
           username: ${{ secrets.AZURE_ACR_USERNAME }}
           password: ${{ secrets.AZURE_ACR_PASSWORD }}
 
-      - name: Build and Push to Azure
-        uses: docker/build-push-action@v5
+      # --- 4. BUILD ONCE, THEN PUSH TO ALL REGISTRIES ---
+      - name: Build Docker image once
+        uses: docker/build-push-action@v6
         with:
           context: ./app
           file: ./app/Dockerfile
-          push: true
+          push: false
+          load: true
           tags: |
-            ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/multicloud-capstone:latest
-            ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/multicloud-capstone:${{ github.sha }}
+            multicloud-capstone:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Push image to AWS ECR
+        run: |
+          docker tag multicloud-capstone:ci ${{ steps.login-ecr-private.outputs.registry }}/multicloud-capstone:latest
+          docker tag multicloud-capstone:ci ${{ steps.login-ecr-private.outputs.registry }}/multicloud-capstone:${{ github.sha }}
+          docker push ${{ steps.login-ecr-private.outputs.registry }}/multicloud-capstone:latest
+          docker push ${{ steps.login-ecr-private.outputs.registry }}/multicloud-capstone:${{ github.sha }}
+
+      - name: Push image to GCP Artifact Registry
+        run: |
+          docker tag multicloud-capstone:ci asia-south1-docker.pkg.dev/${{ secrets.GCP_MY_ORG_PROJECT_ID }}/cloud-run-source-deploy/multicloud-capstone:latest
+          docker tag multicloud-capstone:ci asia-south1-docker.pkg.dev/${{ secrets.GCP_MY_ORG_PROJECT_ID }}/cloud-run-source-deploy/multicloud-capstone:${{ github.sha }}
+          docker push asia-south1-docker.pkg.dev/${{ secrets.GCP_MY_ORG_PROJECT_ID }}/cloud-run-source-deploy/multicloud-capstone:latest
+          docker push asia-south1-docker.pkg.dev/${{ secrets.GCP_MY_ORG_PROJECT_ID }}/cloud-run-source-deploy/multicloud-capstone:${{ github.sha }}
+
+      - name: Push image to Azure ACR
+        run: |
+          docker tag multicloud-capstone:ci ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/multicloud-capstone:latest
+          docker tag multicloud-capstone:ci ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/multicloud-capstone:${{ github.sha }}
+          docker push ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/multicloud-capstone:latest
+          docker push ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/multicloud-capstone:${{ github.sha }}
 
   deploy-infra:
     runs-on: ubuntu-latest
