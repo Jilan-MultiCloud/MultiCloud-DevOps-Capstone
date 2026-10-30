@@ -1,4 +1,4 @@
-﻿# Multi-Cloud Deployment and Management with Terraform
+# Multi-Cloud Deployment and Management with Terraform
 
 An individual DevOps capstone project demonstrating Infrastructure as Code (IaC) across Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP). The project uses Terraform to manage cloud resources and demonstrates application health checks, container deployment, and simulated cross-cloud routing, failover, and recovery.
 
@@ -72,14 +72,18 @@ The local router is a demonstration component. Its simulated failover is not the
 .
 ├── .github/
 │   └── workflows/
-│       └── terraform-checks.yml
+│       └── terraform-ci-cd.yml
 ├── app/
 │   ├── app.py
 │   ├── Dockerfile
 │   ├── lambda_function.py
 │   └── router.py
 ├── docs/
+│   ├── dr_runbook.md
+│   ├── cost_optimization.md
 │   └── screenshots/
+├── monitoring/        # Prometheus, Blackbox, Alertmanager, Grafana (docker-compose)
+├── scripts/           # dr_backup_sync.py (replication + restore drill)
 ├── terraform/
 │   ├── environments/
 │   │   └── dev/
@@ -93,8 +97,6 @@ The local router is a demonstration component. Its simulated failover is not the
 │       ├── aws_lambda/
 │       ├── azure/
 │       └── gcp/
-├── monitoring/
-├── scripts/
 ├── .gitignore
 └── README.md
 ```
@@ -160,7 +162,7 @@ The Azure Container App was deployed successfully, and the image was pushed to A
 
 ### Google Cloud Platform
 
-- Project ID: `heroviredacademics`
+- Project ID: your GCP project (set with `gcp_project_id`; stored as the `GCP_MY_ORG_PROJECT_ID` GitHub secret)
 - Cloud Run service: `multicloud-capstone`
 - Region: `asia-south1`
 - Minimum instances: 0
@@ -181,7 +183,7 @@ The containerized Python application in `app/app.py` exposes these routes:
 |---|---|---|
 | `/` | HTTP 200 | Application and cloud status |
 | `/health` | HTTP 200 | Health check |
-| `/not-found` | HTTP 404 | Not-found handling example |
+| any other path (e.g. `/not-found`) | HTTP 404 | Not-found handling example |
 
 The application uses the `CLOUD_NAME` environment variable to identify the cloud and `PORT` to configure the HTTP listener.
 
@@ -264,6 +266,32 @@ Example demonstration sequence:
 The demonstration screenshots are stored in `docs/screenshots/`.
 
 **Scope limitation:** This is a local routing simulation. It does not automatically redirect public DNS traffic, continuously monitor production endpoints, or establish production-grade disaster recovery. Actual behavior depends on the router implementation and the availability of the configured backend services.
+
+## Monitoring and alerting
+
+Prometheus probes each endpoint through the Blackbox Exporter, Alertmanager sends Slack and PagerDuty notifications, and Grafana reads from Prometheus.
+
+```bash
+mkdir -p monitoring/secrets
+echo "<slack-webhook-url>" > monitoring/secrets/slack_webhook_url
+echo "<pagerduty-routing-key>" > monitoring/secrets/pagerduty_routing_key
+export GF_SECURITY_ADMIN_PASSWORD="<choose-a-password>"
+docker compose -f monitoring/docker-compose.yml up -d
+```
+
+See [`docs/cost_optimization.md`](docs/cost_optimization.md) for cost controls and budget alerts.
+
+## Disaster recovery
+
+`scripts/dr_backup_sync.py backup <file>` replicates a file to AWS, GCP and Azure with a recorded SHA-256, and `restore` performs the verified restore drill. Full steps are in [`docs/dr_runbook.md`](docs/dr_runbook.md).
+
+## CI/CD
+
+`.github/workflows/terraform-ci-cd.yml` formats and validates Terraform on every push and pull request. On pushes to `main` it builds the image once, pushes it to ECR, Artifact Registry and ACR, then runs `terraform plan` and `apply`. Required GitHub secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `GCP_MY_ORG_SA_KEY`, `GCP_MY_ORG_PROJECT_ID`, `AZURE_ACR_LOGIN_SERVER`, `AZURE_ACR_USERNAME`, `AZURE_ACR_PASSWORD`, `VAULT_ADDR`, `VAULT_TOKEN`, `VAULT_NAMESPACE`.
+
+## DNS failover (optional)
+
+Set `route53_zone_id` and `app_domain` to create Route 53 health checks and failover records (GCP primary, Azure secondary). Leave them empty to skip.
 
 ## Prerequisites
 

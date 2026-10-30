@@ -1,0 +1,18 @@
+modules:
+  http_health:
+    prober: http
+    timeout: 10s
+    http:
+      valid_status_codes: [200]
+      method: GET
+      fail_if_body_not_matches_regexp:
+        - '"status":\s*"healthy"'
+
+  # Lambda Function URL with AWS_IAM auth answers 403 to unsigned requests,
+  # which still proves the endpoint is up and reachable.
+  http_reachable_iam:
+    prober: http
+    timeout: 10s
+    http:
+      valid_status_codes: [200, 403]
+      method: GET

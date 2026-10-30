@@ -11,6 +11,7 @@ on:
     branches: ["main"]
     paths:
       - "terraform/**"
+      - "app/**"
       - ".github/workflows/terraform-ci-cd.yml"
   workflow_dispatch:
 
@@ -33,7 +34,7 @@ jobs:
           terraform_version: "1.9.0"
 
       - name: Check HCL Code Formatting
-        run: terraform fmt -check -recursive ../../modules/
+        run: terraform fmt -check -recursive ../../
 
       - name: Initialize Provider Locks Without Remote State
         run: terraform init -backend=false -input=false
@@ -139,7 +140,6 @@ jobs:
 
       TF_VAR_gcp_project_id: ${{ secrets.GCP_MY_ORG_PROJECT_ID }}
       TF_VAR_gcp_bucket_name: "multicloud-capstone-storage-jilan-2026"
-      TF_VAR_azure_resource_group_name: "rg-multicloud-centralindia"
 
     steps:
       - name: Checkout Repository
