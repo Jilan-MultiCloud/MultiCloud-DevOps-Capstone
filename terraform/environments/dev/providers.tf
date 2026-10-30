@@ -80,16 +80,16 @@ provider "google" {
   region  = var.gcp_region
 
   credentials = jsonencode({
-    type                        = data.vault_generic_secret.gcp_secrets.data["type"]
-    project_id                  = data.vault_generic_secret.gcp_secrets.data["project_id"]
-    private_key_id              = data.vault_generic_secret.gcp_secrets.data["private_key_id"]
-    private_key                 = data.vault_generic_secret.gcp_secrets.data["private_key"]
-    client_email                = data.vault_generic_secret.gcp_secrets.data["client_email"]
-    client_id                   = data.vault_generic_secret.gcp_secrets.data["client_id"]
-    auth_uri                    = data.vault_generic_secret.gcp_secrets.data["auth_uri"]
-    token_uri                   = data.vault_generic_secret.gcp_secrets.data["token_uri"]
+    type                          = data.vault_generic_secret.gcp_secrets.data["type"]
+    project_id                    = data.vault_generic_secret.gcp_secrets.data["project_id"]
+    private_key_id                = data.vault_generic_secret.gcp_secrets.data["private_key_id"]
+    private_key                   = data.vault_generic_secret.gcp_secrets.data["private_key"]
+    client_email                  = data.vault_generic_secret.gcp_secrets.data["client_email"]
+    client_id                     = data.vault_generic_secret.gcp_secrets.data["client_id"]
+    auth_uri                      = data.vault_generic_secret.gcp_secrets.data["auth_uri"]
+    token_uri                     = data.vault_generic_secret.gcp_secrets.data["token_uri"]
     auth_provider_x509_cert_url = data.vault_generic_secret.gcp_secrets.data["auth_provider_x509_cert_url"]
     client_x509_cert_url        = data.vault_generic_secret.gcp_secrets.data["client_x509_cert_url"]
-    universe_domain             = data.vault_generic_secret.gcp_secrets.data["universe_domain"]
+    universe_domain               = data.vault_generic_secret.gcp_secrets.data["universe_domain"]
   })
 }

@@ -63,3 +63,9 @@ variable "vault_namespace" {
   type        = string
   default     = "admin"
 }
+
+variable "route53_zone_id" {
+  description = "AWS Route 53 Hosted Zone ID for multi-cloud DNS routing and failover."
+  type        = string
+  default     = ""
+}
