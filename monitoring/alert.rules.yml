@@ -1,38 +1,49 @@
 # ==============================================================================
-# INCIDENT TRIGGER RULES - SAVED DIRECTLY UNDER MONITORING/
+# ALERT RULES (probe metrics come from the Blackbox Exporter)
 # ==============================================================================
 groups:
   - name: MultiCloudAppAlerts
     rules:
-      # Trigger 1: Endpoint Blackout Detection across AWS, Azure, and GCP
       - alert: MultiCloudEndpointDown
-        expr: up{job=~".*-microservice-endpoint"} == 0
+        expr: probe_success{job=~"endpoint-probe.*"} == 0
         for: 1m
         labels:
           severity: critical
           tier: infrastructure
         annotations:
-          summary: "Multi-Cloud Endpoint Instance Down"
-          description: "Microservice node instance under job reference '{{ $labels.job }}' is unreachable or failing health checks for over 60 seconds."
+          summary: "{{ $labels.cloud }} endpoint is down"
+          description: "Health probe for {{ $labels.instance }} ({{ $labels.cloud }}) has failed for over 1 minute."
 
-      # Trigger 2: Python Client Request Router Offline
-      - alert: RouterSimulationOffline
-        expr: up{job="local-router-simulation"} == 0
+      - alert: RouterOffline
+        expr: probe_success{job="router-probe"} == 0
         for: 1m
         labels:
           severity: critical
           tier: application
         annotations:
-          summary: "Python Request Router is Offline"
-          description: "The multi-cloud traffic router is down. Failover testing and API traffic routing are unavailable."
+          summary: "Python request router is offline"
+          description: "The multi-cloud router is down, so failover testing and routed traffic are unavailable."
 
-      # Trigger 3: High Latency / Performance Degradation
       - alert: EndpointHighLatency
-        expr: scrape_duration_seconds{job=~".*-microservice-endpoint"} > 2.0
+        expr: probe_duration_seconds{job=~"endpoint-probe.*"} > 2
         for: 2m
         labels:
           severity: warning
           tier: performance
         annotations:
-          summary: "High Response Latency on {{ $labels.job }}"
-          description: "The cloud endpoint {{ $labels.instance }} is taking longer than 2 seconds to respond. This may indicate performance issues or increased egress costs."
+          summary: "High latency on {{ $labels.cloud }}"
+          description: "{{ $labels.instance }} has taken longer than 2 seconds to respond for 2 minutes."
+
+      - alert: AllCloudsDown
+        expr: sum(probe_success{job=~"endpoint-probe.*"}) == 0
+        for: 1m
+        labels:
+          severity: critical
+          tier: infrastructure
+        annotations:
+          summary: "All cloud endpoints are down"
+          description: "No AWS, Azure or GCP endpoint is passing health probes."
+
+      # Cost control: unexpected spikes in blackbox probe volume are not a cost
+      # signal by themselves; cloud spend alerts are configured through the
+      # provider budgets (see docs/cost_optimization.md).

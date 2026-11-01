@@ -37,3 +37,9 @@ vault-token*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local scratch / generated files
+.terraform-temp/
+terraform/environments/dev/lambda-*.json
+monitoring/secrets/
+*.tfplan

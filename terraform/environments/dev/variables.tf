@@ -10,12 +10,6 @@ variable "azure_location" {
   default     = "centralindia"
 }
 
-variable "azure_resource_group_name" {
-  description = "Azure resource group name for capstone resources."
-  type        = string
-  default     = "rg-multicloud-centralindia"
-}
-
 variable "gcp_project_id" {
   description = "Existing Google Cloud project ID."
   type        = string
@@ -65,7 +59,19 @@ variable "vault_namespace" {
 }
 
 variable "route53_zone_id" {
-  description = "AWS Route 53 Hosted Zone ID for multi-cloud DNS routing and failover."
+  description = "AWS Route 53 Hosted Zone ID for multi-cloud DNS routing and failover. Leave empty to skip DNS failover resources."
   type        = string
   default     = ""
+}
+
+variable "app_domain" {
+  description = "Fully qualified domain name (inside the hosted zone) used for DNS failover, e.g. app.example.com. Leave empty to skip DNS failover resources."
+  type        = string
+  default     = ""
+}
+
+variable "azure_storage_account_name" {
+  description = "Globally unique Azure DR storage account name (3-24 lowercase letters and numbers)."
+  type        = string
+  default     = "jilanmcsa2026"
 }

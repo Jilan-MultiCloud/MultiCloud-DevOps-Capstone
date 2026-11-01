@@ -1,70 +1,90 @@
 # ==============================================================================
-# PROMETHEUS CONFIGURATION ENGINE - MAPS DIRECTLY TO YOUR ROOT MONITORING FOLDER
+# PROMETHEUS CONFIGURATION
+#
+# The app's /health endpoint returns JSON, not Prometheus metrics, so it cannot
+# be scraped directly (`up` would always be 0). Endpoints are probed through the
+# Blackbox Exporter instead, which reports probe_success / probe_duration_seconds.
+# Run the whole stack with: docker compose -f monitoring/docker-compose.yml up -d
 # ==============================================================================
 global:
-  scrape_interval:     15s 
-  evaluation_interval: 15s 
-  scrape_timeout:      10s 
+  scrape_interval: 30s
+  evaluation_interval: 30s
+  scrape_timeout: 10s
 
   external_labels:
-    environment: 'dev'
-    project:     'MultiCloud-DevOps-Capstone'
+    environment: "dev"
+    project: "MultiCloud-DevOps-Capstone"
 
-# ==============================================================================
-# ALERTMANAGER SETUP (FOR SLACK / PAGERDUTY WORKFLOWS)
-# ==============================================================================
 alerting:
   alertmanagers:
     - static_configs:
-        - targets:
-          - 'localhost:9093' # Change to 'alertmanager:9093' if containerized
+        - targets: ["alertmanager:9093"]
 
-# ==============================================================================
-# AUTOMATED INCIDENT ALERTS - EXPECTED IN THE SAME MONITORING FOLDER
-# ==============================================================================
 rule_files:
   - "alert.rules.yml"
 
-# ==============================================================================
-# MULTI-CLOUD ENDPOINT TARGET SCRAPING CONFIGURATIONS
-# ==============================================================================
 scrape_configs:
-  # Target 1: Self Loopback
-  - job_name: 'prometheus-engine'
+  - job_name: "prometheus"
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["localhost:9090"]
 
-  # Target 2: Local Python Client Router (app/router.py)
-  - job_name: 'local-router-simulation'
-    metrics_path: '/health'
+  - job_name: "blackbox-exporter"
     static_configs:
-      # host.docker.internal allows Prometheus in a Docker container to reach localhost:8090 on your host machine
-      - targets: ['host.docker.internal:8090']
+      - targets: ["blackbox:9115"]
 
-  # Target 3: AWS Lambda Endpoint
-  - job_name: 'aws-microservice-endpoint'
-    metrics_path: '/health'
-    scheme: 'https'
+  # Public endpoints probed over HTTPS (expects HTTP 200 and a healthy body).
+  # Update the targets to match `terraform output`.
+  - job_name: "endpoint-probe"
+    metrics_path: /probe
+    params:
+      module: [http_health]
     static_configs:
-      - targets:
-        - 'hr5wkrgtaoxun4fbodccb6a7zu0bqjya.lambda-url.ap-south-1.on.aws'
+      - targets: ["https://ca-multicloud-capstone-dev.orangemeadow-4f21758c.eastus.azurecontainerapps.io/health"]
+        labels:
+          cloud: azure
+      - targets: ["https://multicloud-capstone-kmacr5flaa-el.a.run.app/health"]
+        labels:
+          cloud: gcp
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
 
-  # Target 4: Azure Container Apps Endpoint (From your app.py deployment)
-  - job_name: 'azure-microservice-endpoint'
-    metrics_path: '/health'
-    scheme: 'https'
-    tls_config:
-      insecure_skip_verify: false
+  # AWS Lambda Function URL uses AWS_IAM auth, so an unsigned probe gets HTTP 403.
+  # Treat 403 as "reachable" for the AWS target; full signed checks are done by
+  # app/router.py (/status).
+  - job_name: "endpoint-probe-aws"
+    metrics_path: /probe
+    params:
+      module: [http_reachable_iam]
     static_configs:
-      - targets:
-        - 'ca-multicloud-capstone-dev.orangemeadow-4f21758c.eastus.azurecontainerapps.io'
+      - targets: ["https://hr5wkrgtaoxun4fbodccb6a7zu0bqjya.lambda-url.ap-south-1.on.aws/health"]
+        labels:
+          cloud: aws
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
 
-  # Target 5: GCP Cloud Run Service Endpoint
-  - job_name: 'gcp-microservice-endpoint'
-    metrics_path: '/health'
-    scheme: 'https'
-    tls_config:
-      insecure_skip_verify: false
+  # Local failover router (app/router.py) /health, probed from the host.
+  - job_name: "router-probe"
+    metrics_path: /probe
+    params:
+      module: [http_health]
     static_configs:
-      - targets:
-        - 'multicloud-capstone-kmacr5flaa-el.a.run.app'
+      - targets: ["http://host.docker.internal:8090/health"]
+        labels:
+          cloud: router
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115

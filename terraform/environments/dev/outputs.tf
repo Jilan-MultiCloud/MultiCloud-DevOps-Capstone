@@ -93,3 +93,23 @@ output "gcp_cloud_run_service_url" {
   description = "URL of the existing Google Cloud Run service."
   value       = module.gcp.cloud_run_service_url
 }
+
+output "aws_ecr_repository_url" {
+  description = "URL of the AWS ECR repository."
+  value       = module.aws.ecr_repository_url
+}
+
+output "aws_dr_bucket_name" {
+  description = "Name of the AWS DR backup bucket (use as AWS_DR_BUCKET)."
+  value       = aws_s3_bucket.dr_backup_bucket.bucket
+}
+
+output "azure_dr_storage_account_name" {
+  description = "Name of the Azure DR storage account."
+  value       = module.azure.dr_storage_account_name
+}
+
+output "dns_failover_enabled" {
+  description = "Whether Route 53 failover resources were created."
+  value       = local.enable_dns
+}
